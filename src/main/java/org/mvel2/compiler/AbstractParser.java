@@ -25,6 +25,7 @@ import org.mvel2.CompileException;
 import org.mvel2.ErrorDetail;
 import org.mvel2.Operator;
 import org.mvel2.ParserContext;
+import org.mvel2.Unknown;
 import org.mvel2.ast.ASTNode;
 import org.mvel2.ast.AssertNode;
 import org.mvel2.ast.AssignmentNode;
@@ -2567,12 +2568,40 @@ public class AbstractParser implements Parser, Serializable {
 
         case AND:
           v1 = stk.pop();
-          stk.push(((Boolean) stk.pop()) && ((Boolean) v1));
+          v2 = stk.pop();
+          if (Boolean.FALSE.equals(v1)  || Boolean.FALSE.equals(v2)) {
+            stk.push(Boolean.FALSE);
+          }
+          else if (v1 instanceof Unknown) {
+            stk.push(v1);
+          }
+          else if (v2 instanceof Unknown) {
+            stk.push(v2);
+          }
+          else {
+            Boolean.class.cast(v1);
+            Boolean.class.cast(v2);
+            stk.push(Boolean.TRUE);
+          }
           break;
-
+          
         case OR:
           v1 = stk.pop();
-          stk.push(((Boolean) stk.pop()) || ((Boolean) v1));
+          v2 = stk.pop();
+          if (Boolean.TRUE.equals(v1) || Boolean.TRUE.equals(v2)) {
+            stk.push(Boolean.TRUE);
+          }
+          else if (v1 instanceof Unknown) {
+            stk.push(v1);
+          }
+          else if (v2 instanceof Unknown) {
+            stk.push(v2);
+          }
+          else {
+            Boolean.class.cast(v1);
+            Boolean.class.cast(v2);
+            stk.push(Boolean.FALSE);
+          }
           break;
 
         case CHOR:

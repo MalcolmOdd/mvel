@@ -18,6 +18,17 @@
 
 package org.mvel2;
 
+import static org.mvel2.Operator.AND;
+import static org.mvel2.Operator.CHOR;
+import static org.mvel2.Operator.END_OF_STMT;
+import static org.mvel2.Operator.NOOP;
+import static org.mvel2.Operator.OR;
+import static org.mvel2.Operator.RETURN;
+import static org.mvel2.Operator.TERNARY;
+import static org.mvel2.Operator.TERNARY_ELSE;
+
+import java.util.Map;
+
 import org.mvel2.ast.ASTNode;
 import org.mvel2.ast.Substatement;
 import org.mvel2.compiler.AbstractParser;
@@ -27,10 +38,6 @@ import org.mvel2.integration.impl.ImmutableDefaultFactory;
 import org.mvel2.integration.impl.MapVariableResolverFactory;
 import org.mvel2.util.ErrorUtil;
 import org.mvel2.util.ExecutionStack;
-
-import java.util.Map;
-
-import static org.mvel2.Operator.*;
 
 
 /**
@@ -184,29 +191,14 @@ public class MVELInterpretedRuntime extends AbstractParser {
       case RETURN:
         return RETURN;
       case NOOP:
-        return -2;
+        return OP_OVERFLOW;
 
       case AND:
+      {
         reduceRight();
 
-        if (!stk.peekBoolean()) {
-          if (unwindStatement(operator)) {
-            return -1;
-          }
-          else {
-            stk.clear();
-            return OP_RESET_FRAME;
-          }
-        }
-        else {
-          stk.discard();
-          return OP_RESET_FRAME;
-        }
-
-      case OR:
-        reduceRight();
-
-        if (stk.peekBoolean()) {
+        Object left = stk.peek();
+        if (Boolean.FALSE.equals(left)) {
           if (unwindStatement(operator)) {
             return OP_TERMINATE;
           }
@@ -215,11 +207,37 @@ public class MVELInterpretedRuntime extends AbstractParser {
             return OP_RESET_FRAME;
           }
         }
+        else if (left instanceof Unknown) {
+          return OP_CONTINUE; // To reduce
+        }
         else {
+          Boolean.class.cast(left); // Fail if not Boolean
+          stk.discard(); // 
+          return OP_RESET_FRAME;
+        }
+      }
+      case OR:
+      {
+        reduceRight();
+        Object left = stk.peek();
+        if (Boolean.TRUE.equals(left)) {
+          if (unwindStatement(operator)) {
+            return OP_TERMINATE;
+          }
+          else {
+            stk.clear();
+            return OP_RESET_FRAME;
+          }
+        }
+        else if (left instanceof Unknown) {
+          return OP_CONTINUE; // To reduce
+        }
+        else {
+          Boolean.class.cast(left); // Fail if not Boolean
           stk.discard();
           return OP_RESET_FRAME;
         }
-
+      }
       case CHOR:
         if (!BlankLiteral.INSTANCE.equals(stk.peek())) {
           return OP_TERMINATE;

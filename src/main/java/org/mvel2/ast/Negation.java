@@ -21,6 +21,7 @@ package org.mvel2.ast;
 import org.mvel2.CompileException;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
+import org.mvel2.Unknown;
 import org.mvel2.compiler.ExecutableStatement;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.util.ParseTools;
@@ -45,12 +46,20 @@ public class Negation extends ASTNode {
   }
 
   public Object getReducedValueAccelerated(Object ctx, Object thisValue, VariableResolverFactory factory) {
-    return !((Boolean) stmt.getValue(ctx, thisValue, factory));
+    Object result = stmt.getValue(ctx, thisValue, factory);
+    if (result instanceof Unknown) {
+      return result;
+    }
+    return !((Boolean) result);
   }
 
   public Object getReducedValue(Object ctx, Object thisValue, VariableResolverFactory factory) {
     try {
-      return !((Boolean) MVEL.eval(expr, start, offset, ctx, factory));
+      Object result = MVEL.eval(expr, start, offset, ctx, factory);
+      if (result instanceof Unknown) {
+        return result;
+      }
+      return !((Boolean) result);
     }
     catch (NullPointerException e) {
       throw new CompileException("negation operator applied to a null value", expr, start, e);

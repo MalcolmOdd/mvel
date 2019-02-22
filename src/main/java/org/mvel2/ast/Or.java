@@ -18,6 +18,7 @@
 package org.mvel2.ast;
 
 import org.mvel2.ParserContext;
+import org.mvel2.Unknown;
 import org.mvel2.integration.VariableResolverFactory;
 
 import static org.mvel2.util.CompilerTools.expectType;
@@ -31,8 +32,25 @@ public class Or extends BooleanNode {
   }
 
   public Object getReducedValueAccelerated(Object ctx, Object thisValue, VariableResolverFactory factory) {
-    return (((Boolean) left.getReducedValueAccelerated(ctx, thisValue, factory))
-        || ((Boolean) right.getReducedValueAccelerated(ctx, thisValue, factory)));
+    Object leftResult = left.getReducedValueAccelerated(ctx, thisValue, factory);
+    if (Boolean.TRUE.equals(leftResult)) {
+      return Boolean.TRUE;
+    }
+    Object rightResult = right.getReducedValueAccelerated(ctx, thisValue, factory);
+    if (Boolean.TRUE.equals(rightResult)) {
+      return Boolean.TRUE;
+    }
+    // Propagate unknowns
+    if (leftResult instanceof Unknown) {
+      return leftResult;
+    }
+    if (rightResult instanceof Unknown) {
+      return rightResult;
+    }
+    // Check that results are boolean
+    Boolean.class.cast(leftResult);
+    Boolean.class.cast(rightResult);
+    return Boolean.FALSE;
   }
 
   public Object getReducedValue(Object ctx, Object thisValue, VariableResolverFactory factory) {

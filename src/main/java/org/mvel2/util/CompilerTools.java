@@ -24,6 +24,7 @@ import java.util.Map;
 import org.mvel2.CompileException;
 import org.mvel2.Operator;
 import org.mvel2.ParserContext;
+import org.mvel2.Unknown;
 import org.mvel2.ast.ASTNode;
 import org.mvel2.ast.And;
 import org.mvel2.ast.BinaryOperation;
@@ -406,7 +407,7 @@ public class CompilerTools {
             + (retType != null ? retType.getName() : "<Unknown>"), new char[0], 0);
       }
     }
-    else if (retType == null || !Object.class.equals(retType) && !boxPrimitive(type).isAssignableFrom(retType)) {
+    else if (retType == null || !Object.class.equals(retType) && !boxPrimitive(type).isAssignableFrom(retType) && !(Unknown.class.isAssignableFrom(retType))) {
       throw new CompileException("was expecting type: " + type.getName() + "; but found type: "
           + (retType != null ? retType.getName() : "<Unknown>"), new char[0], 0);
     }
