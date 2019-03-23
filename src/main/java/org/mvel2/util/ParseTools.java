@@ -49,6 +49,8 @@ import org.mvel2.MVEL;
 import org.mvel2.Operator;
 import org.mvel2.OptimizationFailure;
 import org.mvel2.ParserContext;
+import org.mvel2.Unknown;
+import org.mvel2.UnknownContainer;
 import org.mvel2.ast.ASTNode;
 import org.mvel2.compiler.AbstractParser;
 import org.mvel2.compiler.BlankLiteral;
@@ -68,7 +70,9 @@ import static java.lang.System.arraycopy;
 import static java.lang.Thread.currentThread;
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.mvel2.DataConversion.canConvert;
-import static org.mvel2.DataTypes.*;
+import static org.mvel2.DataTypes.DOUBLE;
+import static org.mvel2.DataTypes.INTEGER;
+import static org.mvel2.DataTypes.LONG;
 import static org.mvel2.MVEL.getDebuggingOutputFileName;
 import static org.mvel2.compiler.AbstractParser.LITERALS;
 import static org.mvel2.integration.ResolverTools.appendFactory;
@@ -673,9 +677,15 @@ public class ParseTools {
     return cls;
   }
 
-  public static boolean containsCheck(Object compareTo, Object compareTest) {
+  public static Object containsCheck(Object compareTo, Object compareTest) {
     if (compareTo == null)
       return false;
+    else if (compareTo instanceof Unknown)
+      return compareTo;
+    else if (compareTest instanceof Unknown)
+      return compareTest;
+    else if (compareTo instanceof UnknownContainer) 
+      return ((UnknownContainer) compareTo).contains(compareTest);
     else if (compareTo instanceof String)
       return ((String) compareTo).contains(valueOf(compareTest));
     else if (compareTo instanceof Collection)

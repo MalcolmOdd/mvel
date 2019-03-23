@@ -19,6 +19,7 @@ package org.mvel2.math;
 
 import org.mvel2.DataTypes;
 import org.mvel2.Unit;
+import org.mvel2.Unknown;
 import org.mvel2.compiler.BlankLiteral;
 import org.mvel2.debug.DebugTools;
 import org.mvel2.util.InternalNumber;
@@ -55,6 +56,8 @@ public strictfp class MathProcessor {
   }
 
   public static Object doOperations(int type1, Object val1, int operation, int type2, Object val2) {
+    if (val1 instanceof Unknown) return val1;
+    if (val2 instanceof Unknown) return val2;
     if (type1 == -1)
       type1 = val1 == null ? DataTypes.OBJECT : __resolveType(val1.getClass());
 

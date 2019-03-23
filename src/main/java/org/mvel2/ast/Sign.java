@@ -3,6 +3,7 @@ package org.mvel2.ast;
 import org.mvel2.CompileException;
 import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
+import org.mvel2.Unknown;
 import org.mvel2.compiler.ExecutableStatement;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.util.ParseTools;
@@ -51,6 +52,7 @@ public class Sign extends ASTNode {
 
   private Object sign(Object o) {
     if (o == null) return null;
+    if (o instanceof Unknown) return o;
     if (signer == null) {
       if (egressType == null || egressType == Object.class) egressType = o.getClass();
       initSigner(egressType);
