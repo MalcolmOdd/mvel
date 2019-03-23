@@ -170,7 +170,7 @@ public class CompilerTools {
               }
             }
             else if (PTABLE[bo.getOperation()] >= PTABLE[op2]) {
-              bo = new BinaryOperation(op2, bo, astLinkedList.nextNode(), pCtx);
+              bo = boOptimize(op2, bo, astLinkedList.nextNode(), pCtx);
             }
             else {
               tk2 = astLinkedList.nextNode();

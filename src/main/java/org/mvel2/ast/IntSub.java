@@ -11,6 +11,6 @@ public class IntSub extends IntOp {
 
   @Override
   protected int doOp(int leftVal, int rightVal) {
-    return leftVal / rightVal;
+    return leftVal - rightVal;
   }
 }
