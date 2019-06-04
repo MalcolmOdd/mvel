@@ -18,7 +18,7 @@ package org.mvel2;
 /**
  * An interface that can be implemented for containers that have knowledge about
  *  what information they have and don't have, to be usable in MVEL "contains" statements.
- * @author Luc Thuot
+ * @author MalcolmOdd
  */
 public interface UnknownContainer {
   /**
